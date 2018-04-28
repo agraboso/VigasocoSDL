@@ -9,6 +9,8 @@
 //para memset
 #include <string.h>
 
+extern char globalcc; 
+
 /////////////////////////////////////////////////////////////////////////////
 // initialization and cleanup
 /////////////////////////////////////////////////////////////////////////////
@@ -17,6 +19,7 @@ InputHandler::InputHandler()
 {
 	_inputPorts = 0;
 	_isInitialized = false;
+	globalcc = '\0';
 }
 
 InputHandler::~InputHandler()
@@ -134,9 +137,13 @@ void InputHandler::process()
 
 	// for each plugin, modify _inputs array if the user has pressed an input
 	for (Plugins::iterator i = _plugins.begin(); i != _plugins.end(); i++){
+		std::string str="webCommand";
+		// if (globalcc != '\0') {
+			fprintf(stderr, "Mando a FakeInput %d %c\r", globalcc, int(globalcc));
+			(*i)->setProperty(str, (int) (globalcc));
+		//}
 		(*i)->process(_inputs);
 	}
-
 	// process the _inputs array modifying the input ports' values
 
 	// iterate through the input ports checking associated inputs
@@ -166,6 +173,26 @@ void InputHandler::process()
 		// update input port value
 		ip.setValue(value);
 	}
+}
+
+// TODO: JT: revisar no se si este es un buen parche
+
+void InputHandler::sendCommand(char command)
+{
+	// printf("voy a mandar -> (%c)\n", command);
+	webCommand = command;
+	// for each plugin, modify _inputs array if the user has pressed an input
+/*
+	for (Plugins::iterator i = _plugins.begin(); i != _plugins.end(); i++){
+		// printf("mandando -> (%c)\n", command);
+		// (*i)->setWebCommand(command);
+		// printf("mandado -> (%c)\n", command);
+		// (*i)->process(_inputs);
+		// printf("procesado -> (%c)\n", command);
+	}
+	return;
+*/
+
 }
 
 void InputHandler::copyInputsState(int *dest)

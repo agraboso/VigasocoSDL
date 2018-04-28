@@ -8,12 +8,16 @@
 #define _DIRECT_INPUT_KEYBOARD_PLUGIN_H_
 
 #include "IInputPlugin.h"
+#include "fstream"
 #include "SDL.h"
+#include <vector>
 
-class SDLInputKeyboardPlugin: public IInputPlugin
+class FakeInputKeyboardPlugin: public IInputPlugin
 {
 // fields
 protected:
+	Uint8 keystate[SDLK_LAST];
+//        std::ifstream in("/dev/stdin"); // TODO esto deberia ser una opcion del plugin y no a fuego
 	static const std::string g_properties[];
 	static const int g_paramTypes[];
 
@@ -28,9 +32,8 @@ protected:
 // methods
 public:
 	// initialization and cleanup
-	char webCommand;
-	SDLInputKeyboardPlugin();
-	virtual ~SDLInputKeyboardPlugin();
+	FakeInputKeyboardPlugin();
+	virtual ~FakeInputKeyboardPlugin();
 	virtual bool init();
 	virtual void end();
 
@@ -46,8 +49,6 @@ public:
 	virtual void setProperty(std::string prop, int index, int data);
 	virtual int getProperty(std::string prop) const;
 	virtual int getProperty(std::string prop, int index) const;
-	virtual char getWebCommand();
-	virtual void setWebCommand(char command);
 
 protected:
 	void initRemapTable();

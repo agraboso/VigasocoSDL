@@ -10,10 +10,12 @@
 #include "IInputPlugin.h"
 #include "SDL.h"
 
-class SDLInputKeyboardPlugin: public IInputPlugin
+
+class FakeInputKeyboardPlugin: public IInputPlugin
 {
 // fields
 protected:
+	Uint8 keystate[SDLK_LAST];
 	static const std::string g_properties[];
 	static const int g_paramTypes[];
 
@@ -24,13 +26,12 @@ protected:
 	SDL_Joystick *joy;
 #endif
 	std::string _errorMsg;						// error message
-
 // methods
 public:
-	// initialization and cleanup
 	char webCommand;
-	SDLInputKeyboardPlugin();
-	virtual ~SDLInputKeyboardPlugin();
+	// initialization and cleanup
+	FakeInputKeyboardPlugin();
+	virtual ~FakeInputKeyboardPlugin();
 	virtual bool init();
 	virtual void end();
 
@@ -46,7 +47,7 @@ public:
 	virtual void setProperty(std::string prop, int index, int data);
 	virtual int getProperty(std::string prop) const;
 	virtual int getProperty(std::string prop, int index) const;
-	virtual char getWebCommand();
+	// virtual char getWebCommand();
 	virtual void setWebCommand(char command);
 
 protected:

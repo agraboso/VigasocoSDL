@@ -3,17 +3,17 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include "SDLInputKeyboardPlugin.h"
+#include "FakeInputKeyboardPlugin.h"
 
 #include <vector>
 
-SDLKey SDLInputKeyboardPlugin::g_keyMapping[END_OF_INPUTS];
+SDLKey FakeInputKeyboardPlugin::g_keyMapping[END_OF_INPUTS];
 
 /////////////////////////////////////////////////////////////////////////////
 // initialization and cleanup
 /////////////////////////////////////////////////////////////////////////////
 
-SDLInputKeyboardPlugin::SDLInputKeyboardPlugin()
+FakeInputKeyboardPlugin::FakeInputKeyboardPlugin()
 {
 	_errorMsg = "";
 #if defined _EE || defined _PS3
@@ -21,14 +21,16 @@ SDLInputKeyboardPlugin::SDLInputKeyboardPlugin()
 #endif
 
 	initRemapTable();
+
 }
 
-SDLInputKeyboardPlugin::~SDLInputKeyboardPlugin()
+FakeInputKeyboardPlugin::~FakeInputKeyboardPlugin()
 {
 }
 
-bool SDLInputKeyboardPlugin::init()
+bool FakeInputKeyboardPlugin::init()
 {
+fprintf(stderr,"FakeInputKeyboardPlugin::init\n");
 #if defined _EE || defined _PS3
 	if ( SDL_InitSubSystem(SDL_INIT_JOYSTICK) != -1 )
 	{
@@ -62,7 +64,7 @@ bool SDLInputKeyboardPlugin::init()
 	return true;
 }
 
-void SDLInputKeyboardPlugin::end()
+void FakeInputKeyboardPlugin::end()
 {
 #if defined _EE || defined _PS3
 	if(SDL_NumJoysticks()>0)
@@ -73,17 +75,17 @@ void SDLInputKeyboardPlugin::end()
 		}
 	}
 #endif
-	SDL_WM_GrabInput(SDL_GRAB_OFF);
+//TODO	SDL_WM_GrabInput(SDL_GRAB_OFF);
 }
 
-void SDLInputKeyboardPlugin::acquire()
+void FakeInputKeyboardPlugin::acquire()
 {
-	SDL_WM_GrabInput(SDL_GRAB_ON);
+//TODO	SDL_WM_GrabInput(SDL_GRAB_ON);
 }
 
-void SDLInputKeyboardPlugin::unAcquire()
+void FakeInputKeyboardPlugin::unAcquire()
 {
-	SDL_WM_GrabInput(SDL_GRAB_OFF);
+//TODO	SDL_WM_GrabInput(SDL_GRAB_OFF);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -151,18 +153,18 @@ enum ps3_sixaxis_sdl_axis
 	AXIS_TRIANGLE,
 	AXIS_CIRCLE,
 	AXIS_CROSS,
-	AXIS_SQUARE
+	AXIS_SQUARE		
 /* a partir del 19 no se que boton es ... */
 };
 
 #endif // _PS3
 
-void SDLInputKeyboardPlugin::process(int *inputs)
+void FakeInputKeyboardPlugin::process(int *inputs)
 {
 	//Uint8 *keystate = SDL_GetKeyState(NULL);
 	int size;
-	Uint8 *keystate_tmp=SDL_GetKeyState(&size);
-	std::vector<Uint8> keystate(keystate_tmp,keystate_tmp+size);
+//TODO	Uint8 *keystate_tmp=SDL_GetKeyState(&size);
+//TODO	std::vector<Uint8> keystate(keystate_tmp,keystate_tmp+size);
 
 #if defined _EE || defined _PS3
 	if(joy)
@@ -200,31 +202,31 @@ void SDLInputKeyboardPlugin::process(int *inputs)
 		Uint8 hat = SDL_JoystickGetHat(joy,0);
 
 
-		// Cruzeta
+		// Cruzeta 
 		// La primera condicion mira si se ha pulsado esa direccion,
 		// la segunda direccion mira que no se tiene pulsado el boton contrario
 		//  (?se puede fisicamente?)
-		// y la tercera que no tengamos pulsado ya el movimiento contrario
+		// y la tercera que no tengamos pulsado ya el movimiento contrario 
 		// en la seta analogica
 
-		keystate[SDLK_UP]    |=
-			(hat & SDL_HAT_UP) &&
+		keystate[SDLK_UP]    |= 
+			(hat & SDL_HAT_UP) && 
 			!(hat & SDL_HAT_DOWN)  &&
 			!keystate[SDLK_DOWN];
 
-		keystate[SDLK_DOWN]  |=
+		keystate[SDLK_DOWN]  |= 
 			(hat & SDL_HAT_DOWN)  &&
 			!(hat & SDL_HAT_UP)   &&
 			!keystate[SDLK_UP];
 
-		keystate[SDLK_RIGHT] |=
+		keystate[SDLK_RIGHT] |= 
 			(hat & SDL_HAT_RIGHT) && !(hat & SDL_HAT_LEFT) &&
 			!keystate[SDLK_LEFT];
 
-		keystate[SDLK_LEFT]  |=
+		keystate[SDLK_LEFT]  |= 
 			(hat & SDL_HAT_LEFT)	&&
 			!(hat & SDL_HAT_RIGHT)	&&
-			!keystate[SDLK_RIGHT];
+			!keystate[SDLK_RIGHT]; 
 #endif // _EE
 
 #ifdef _PS3
@@ -238,27 +240,73 @@ void SDLInputKeyboardPlugin::process(int *inputs)
 
 	} // if joy
 #endif // _EE y _PS3
+//fprintf(stderr,"antes for\n");
 
+/*
+std::ifstream in("/dev/stdin"); // TODO , no abrir en cada bucle
+std::string comando;
+in >> comando;
+
+fprintf(stderr,"comando %s\n", comando.c_str());
+*/
+
+std::ifstream in("/dev/stdin"); // TODO , no abrir en cada bucle
+char kk[2];
+kk[0]=NULL;
+kk[1]=NULL;
+if ( in.readsome(kk,1) > 0 && !in.fail()) {
+
+ fprintf(stderr,"comando %c\n", kk[0] );
+ fprintf(stderr,"ups %s\n", keystate[SDLK_UP] );
+/*
+ switch(kk[0]) {
+   case 'A': keystate[SDLK_UP]=true; break;     // A de Arriba
+   case 'D': keystate[SDLK_RIGHT]=true; break;   // D de Derecha
+   case 'I': keystate[SDLK_LEFT]=true; break;    // I de Izquierda
+   case 'B': keystate[SDLK_DOWN]=true;  break; // Cursor aBajo para mover a Adso
+   case ' ': keystate[SDLK_SPACE]=true;  break;  // barra espaciadora
+   case 'E': keystate[SDLK_F5]=true;  break;    // E de esparar, STOP, esto debe imprimir el estado
+   case 'Q': keystate[SDLK_q]=true;  break; 
+   case 'R': keystate[SDLK_r]=true; break; 
+   default: fprintf(stderr,"No entiendo el comando %c\n", kk[0] ); // TODO devolver en JSON indicando status error
+ }
+*/
+}
+
+	
 	// iterate through the inputs checking associated keys
 	for (int i = 0; i < END_OF_INPUTS; i++){
+//fprintf(stderr,"en for\n");
 		// if we're interested in that input, check it's value
 		if (inputs[i] >= 0){
+//fprintf(stderr,"next\n");
 			// if the input is mapped and the key is pressed,
 			// update inputs
 			if (g_keyMapping[i] != 0){
+//fprintf(stderr,"%i \n",i);
 				if (keystate[g_keyMapping[i]] ){
 					inputs[i]++;
 				}
+
+				// simular todo el rato la tecla cursor arriba pulsada
+				//if (i==P1_UP) {
+//				if (i==P1_DOWN) {
+//					 inputs[i]++;
+//fprintf(stderr,"simulando SDLK_UP\n");
+//				}
 			}
 		}
 	}
+//valen lo mismo
+//fprintf(stderr,"SDLK_UP %d\n",SDLK_UP);
+//fprintf(stderr,"P1_UP %d\n",P1_UP);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // helper methods
 /////////////////////////////////////////////////////////////////////////////
 
-void SDLInputKeyboardPlugin::initRemapTable()
+void FakeInputKeyboardPlugin::initRemapTable()
 {
 	memset(g_keyMapping, 0, sizeof(g_keyMapping));
 
@@ -274,7 +322,7 @@ void SDLInputKeyboardPlugin::initRemapTable()
 	g_keyMapping[P1_BUTTON2] = SDLK_LSUPER;
 
 	g_keyMapping[P2_UP] = SDLK_w;
-	g_keyMapping[P2_LEFT] = SDLK_a;
+	g_keyMapping[P2_LEFT] = SDLK_a; 
 	g_keyMapping[P2_DOWN] = SDLK_s;
 	g_keyMapping[P2_RIGHT] = SDLK_d;
 	g_keyMapping[P2_BUTTON1] = SDLK_y;
@@ -323,7 +371,7 @@ void SDLInputKeyboardPlugin::initRemapTable()
 	g_keyMapping[KEYBOARD_6] = SDLK_6;
 	g_keyMapping[KEYBOARD_7] = SDLK_7;
 	g_keyMapping[KEYBOARD_8] = SDLK_8;
-	g_keyMapping[KEYBOARD_9] = SDLK_9;
+	g_keyMapping[KEYBOARD_9] = SDLK_9; 
 	g_keyMapping[KEYBOARD_SPACE] = SDLK_SPACE;
 	g_keyMapping[KEYBOARD_INTRO] = SDLK_RETURN; // SDLK_KP_ENTER;
 	g_keyMapping[KEYBOARD_SUPR] = SDLK_DELETE;
@@ -352,30 +400,30 @@ void SDLInputKeyboardPlugin::initRemapTable()
 // Custom plugin properties
 /////////////////////////////////////////////////////////////////////////////
 
-const std::string SDLInputKeyboardPlugin::g_properties[] = {
+const std::string FakeInputKeyboardPlugin::g_properties[] = {
 	"keyConfig"
 };
 
-const int SDLInputKeyboardPlugin::g_paramTypes[] = {
-	static_cast<int>(PARAM_ARRAY | PARAM_INPUT)
+const int FakeInputKeyboardPlugin::g_paramTypes[] = {
+	PARAM_ARRAY | PARAM_INPUT
 };
 
-const int * SDLInputKeyboardPlugin::getPropertiesType() const
+const int * FakeInputKeyboardPlugin::getPropertiesType() const
 {
-	return SDLInputKeyboardPlugin::g_paramTypes;
+	return FakeInputKeyboardPlugin::g_paramTypes;
 }
 
-const std::string * SDLInputKeyboardPlugin::getProperties(int *num) const
+const std::string * FakeInputKeyboardPlugin::getProperties(int *num) const 
 {
 	*num = sizeof(g_paramTypes)/sizeof(g_paramTypes[0]);
-	return SDLInputKeyboardPlugin::g_properties;
+	return FakeInputKeyboardPlugin::g_properties;
 }
 
-void SDLInputKeyboardPlugin::setProperty(std::string prop, int data)
+void FakeInputKeyboardPlugin::setProperty(std::string prop, int data)
 {
 }
 
-void SDLInputKeyboardPlugin::setProperty(std::string prop, int index, int data)
+void FakeInputKeyboardPlugin::setProperty(std::string prop, int index, int data)
 {
 	if (prop == "keyConfig"){
 		if ((index >= 0) && (index < END_OF_INPUTS)){
@@ -384,25 +432,17 @@ void SDLInputKeyboardPlugin::setProperty(std::string prop, int index, int data)
 	}
 }
 
-int SDLInputKeyboardPlugin::getProperty(std::string prop) const
+int FakeInputKeyboardPlugin::getProperty(std::string prop) const
 {
 	return -1;
 };
 
-int SDLInputKeyboardPlugin::getProperty(std::string prop, int index) const
+int FakeInputKeyboardPlugin::getProperty(std::string prop, int index) const
 {
 	if (prop == "keyConfig"){
 		if ((index >= 0) && (index < END_OF_INPUTS)){
 			return g_keyMapping[index];
 		}
-	}
-	return -1;
-};
-
-char SDLInputKeyboardPlugin::getWebCommand() {
-	return '\0';
-}
-
-void SDLInputKeyboardPlugin::setWebCommand(char command) {
-	return;
+	} 
+	return -1; 
 };

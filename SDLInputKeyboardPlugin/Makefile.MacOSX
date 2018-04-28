@@ -7,7 +7,7 @@ all: ../VigasocoSDL/input/libVigasocoSDLInputPlugin.so
 OBJECTS = SDLInputKeyboardPlugin.o PluginMain.o
 
 ../VigasocoSDL/input/libVigasocoSDLInputPlugin.so: $(OBJECTS)
-	$(CXX) -fPIC -D__abadIA__ -std=c++14 `sdl-config --libs` -shared -Wc++11-extensions -lboost_thread -lboost_system -pthread  $(OBJECTS) -o $@
+	$(CXX) -fPIC -D__abadIA__ -std=c++14 `sdl-config --libs` -shared -Wc++11-extensions -lboost_thread-mt -lboost_system-mt -pthread  $(OBJECTS) -o $@
 
 clean:
 	rm -f $(OBJECTS) ../VigasocoSDL/input/libVigasocoSDLInputPlugin.so 
