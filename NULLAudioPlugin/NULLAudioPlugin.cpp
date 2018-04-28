@@ -94,7 +94,7 @@ const std::string NULLAudioPlugin::g_properties[] = {
 };
 
 const int NULLAudioPlugin::g_paramTypes[] = {
-	PARAM_ARRAY | PARAM_INPUT
+	static_cast<int>(PARAM_ARRAY | PARAM_INPUT)
 };
 
 const int * NULLAudioPlugin::getPropertiesType() const

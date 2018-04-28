@@ -357,7 +357,7 @@ const std::string SDLInputKeyboardPlugin::g_properties[] = {
 };
 
 const int SDLInputKeyboardPlugin::g_paramTypes[] = {
-	PARAM_ARRAY | PARAM_INPUT
+	static_cast<int>(PARAM_ARRAY | PARAM_INPUT)
 };
 
 const int * SDLInputKeyboardPlugin::getPropertiesType() const

@@ -211,7 +211,7 @@ const std::string DirectInputKeyboardPlugin::g_properties[] = {
 };
 
 const int DirectInputKeyboardPlugin::g_paramTypes[] = {
-	PARAM_ARRAY | PARAM_INPUT
+	static_cast<int>(PARAM_ARRAY | PARAM_INPUT)
 };
 
 const int * DirectInputKeyboardPlugin::getPropertiesType() const

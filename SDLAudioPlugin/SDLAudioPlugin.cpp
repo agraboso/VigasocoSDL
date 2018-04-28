@@ -263,7 +263,7 @@ const std::string SDLAudioPlugin::g_properties[] = {
 };
 
 const int SDLAudioPlugin::g_paramTypes[] = {
-	PARAM_ARRAY | PARAM_INPUT
+	static_cast<int>(PARAM_ARRAY | PARAM_INPUT)
 };
 
 const int * SDLAudioPlugin::getPropertiesType() const
